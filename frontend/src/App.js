@@ -1,17 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-
-import Game from "pages/Game";
+import { Router } from "react-router-dom";
+import { createBrowserHistory } from 'history';
 import { configureStore } from "redux/store";
+import Routes from './Routes';
+
+const history = createBrowserHistory();
 
 const MainApp = () => (
   <Provider store={configureStore()}>
-    <Router>
-      <Switch>
-        <Route path="/" component={Game} />
-      </Switch>
+    <Router history={history}>
+      <Routes />
     </Router>
   </Provider>
 );

@@ -12,7 +12,7 @@ const List = [
   { id: 4, name: "Insane Asylum" },
 ];
 
-const Game = () => {
+const PlayBacks = () => {
   const history = useHistory();
   return (
     <div>
@@ -36,4 +36,4 @@ const Game = () => {
   )
 };
 
-export default Game;
+export default PlayBacks;
