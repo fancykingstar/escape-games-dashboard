@@ -12,7 +12,7 @@ function LoadingScreen() {
   }, []);
 
   return (
-    <div>
+    <div className="text-center">
       <Spinner animation="grow" variant="dark" />
     </div>
   );

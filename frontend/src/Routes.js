@@ -24,9 +24,14 @@ const routesConfig = [
       },
       {
         exact: true,
-        path: '/:id',
+        path: '/:id/:id',
         component: lazy(() => import('pages/PlayBacks'))
-      }
+      },
+      {
+        exact: true,
+        path: '/:id/:id/:timestamp',
+        component: lazy(() => import('pages/PlayBackDetail'))
+      },
     ]
   }
 ];

@@ -13,7 +13,7 @@ const Layout = ({ children }) => {
         <Row className="row">
           <Col xs={12}>
             <NavBar />
-            { children }
+            {children}
           </Col>
         </Row>
       </Container>

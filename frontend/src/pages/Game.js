@@ -1,7 +1,7 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 import { ListGroup } from "react-bootstrap";
-import Layout from "container/Layout";
+import { saveGame } from "redux/actions";
 import "./Game.scss";
 
 const List = [
@@ -14,6 +14,10 @@ const List = [
 
 const Game = () => {
   const history = useHistory();
+  const goPlayBacks = (item) => {
+    history.push(`/${item.name}/${item.id}`);
+  };
+
   return (
     <div>
       <h2 className="text-center">Games</h2>
@@ -23,9 +27,7 @@ const Game = () => {
           <ListGroup.Item
             key={item.id}
             className="cursor-pointer game-item"
-            onClick={() => {
-              history.push(`/${item.name}`)
-            }}
+            onClick={() => goPlayBacks(item)}
           >
             { item.name }
           </ListGroup.Item>  
