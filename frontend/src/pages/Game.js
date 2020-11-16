@@ -14,6 +14,7 @@ const List = [
 
 const Game = () => {
   const history = useHistory();
+  localStorage.removeItem("currentDate");
   const goPlayBacks = (item) => {
     history.push(`/${item.name}/${item.id}`);
   };

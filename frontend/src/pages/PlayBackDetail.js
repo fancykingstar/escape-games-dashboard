@@ -18,6 +18,7 @@ const PlayBackDetail = () => {
   const [startStateValue, setStartStateValue] = useState("");
   const [stateValue, setStateValue] = useState("");
   const [key, setKey] = useState("start");
+  const [currentItem, setCurrentItem] = useState(null);
   
   const { pathname, search } = history.location;
   const id = pathname.split("/")[2];
@@ -63,8 +64,9 @@ const PlayBackDetail = () => {
     fetch();
   }, [id, timestamp, userId]);
 
-  const getResponse = (res, start, end) => {
+  const getResponse = (index, res, start, end) => {
     setDetailLoading(true);
+    setCurrentItem(index);
     setDetailResponse(res);
     setStartStateValue(start);
     setEndStateValue(end);
@@ -104,7 +106,10 @@ const PlayBackDetail = () => {
                       <ListGroup.Item
                         key={index}
                         className="cursor-pointer game-item"
-                        onClick={() => getResponse(item.response, item.startState, item.endState)}
+                        onClick={() => getResponse(index, item.response, item.startState, item.endState)}
+                        style={{
+                          backgroundColor: index === currentItem ? "lightgray" : "white"
+                        }}
                       >
                         {index + 1}{". "}{ item.command }
                       </ListGroup.Item>  
