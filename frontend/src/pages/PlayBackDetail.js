@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useHistory } from "react-router-dom";
-import { Row, Col, ListGroup } from "react-bootstrap";
+import { Row, Col, ListGroup, Form, Tabs, Tab } from "react-bootstrap";
 import LoadingScreen from "components/LoadingScreen";
 import { api } from "lib/api";
 import "./Game.scss";
+import { setWeekYear } from "date-fns";
 
 const PlayBackDetail = () => {
   const history = useHistory();
@@ -13,6 +14,10 @@ const PlayBackDetail = () => {
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailResponse, setDetailResponse] = useState("");
+  const [endStateValue, setEndStateValue] = useState("");
+  const [startStateValue, setStartStateValue] = useState("");
+  const [stateValue, setStateValue] = useState("");
+  const [key, setKey] = useState("start");
   
   const { pathname, search } = history.location;
   const id = pathname.split("/")[2];
@@ -35,8 +40,19 @@ const PlayBackDetail = () => {
         let playBacksDetail = [];
         response.result.forEach((play, i) => {
           const command = Object.values(JSON.parse(play.Move)).join(" ");
-          const temp = playBacksDetail.filter(item => item.move !== play.Move);
-          playBacksDetail = [...temp, { command, move: play.Move}];
+          const res = JSON.parse(play.Response).response;
+          const endState = JSON.stringify(JSON.parse(play.EndState), null, 2);
+          const startState = JSON.stringify(JSON.parse(play.StartState), null, 2);
+          
+          playBacksDetail.push(
+            {
+              command,
+              response: res,
+              endState,
+              startState,
+              move: play.Move
+            }
+          );
         });
         setDetail(playBacksDetail);
       } catch(err) {
@@ -47,22 +63,18 @@ const PlayBackDetail = () => {
     fetch();
   }, [id, timestamp, userId]);
 
-  const getResponse = async (move) => {
+  const getResponse = (res, start, end) => {
     setDetailLoading(true);
-    const response = await api({
-      method: "POST",
-      url: `/playbacks_detail`,
-      data: {
-        id,
-        timestamp,
-        userId,
-        move
-      }
-    });
-    const res = JSON.parse(response.result.Response).response;
     setDetailResponse(res);
+    setStartStateValue(start);
+    setEndStateValue(end);
+    key === "start" ? setStateValue(start) : setStateValue(end);
     setDetailLoading(false);
   };
+
+  const changeResponse = (k) => {
+    k === "start" ? setStateValue(startStateValue) : setStateValue(endStateValue);
+  }
 
   return (
     <div className="position-relative">
@@ -92,25 +104,49 @@ const PlayBackDetail = () => {
                       <ListGroup.Item
                         key={index}
                         className="cursor-pointer game-item"
-                        onClick={() => getResponse(item.move)}
+                        onClick={() => getResponse(item.response, item.startState, item.endState)}
                       >
-                        { item.command }
+                        {index + 1}{". "}{ item.command }
                       </ListGroup.Item>  
                     ))
                 }
               </ListGroup>
             </Col>
             <Col>
-              <h4 className="mb-4 text-center">Response</h4>
-              {/* <div
-                className="command px-4 py-2 d-border"
-                dangerouslySetInnerHTML={{
-                  __html: detailResponse
-                }}
-              /> */}
-              <div
-                className="command px-4 py-2 d-border"
-              >{detailResponse}</div>
+              <div className="mb-5">
+                <h4 className="mb-4 text-center">Response</h4>
+                <div
+                  className="response px-4 py-2 d-border"
+                >{detailResponse}</div>
+              </div>
+              <div>
+                <Tabs
+                  defaultActiveKey="start"
+                  id="uncontrolled-tab-example"
+                  onSelect={(k) => {
+                    changeResponse(k);
+                    setKey(k);
+                  }}
+                >
+                  <Tab
+                    eventKey="start"
+                    title="Start State"
+                  >
+                  </Tab>
+                  <Tab
+                    eventKey="end"
+                    title="End State"
+                  >
+                  </Tab>
+                </Tabs>
+                <Form.Control
+                  as="textarea"
+                  rows="11"
+                  className="d-border end-state"
+                  defaultValue={stateValue}
+                  key={stateValue}
+                />
+              </div>
             </Col>
           </Row>
         )

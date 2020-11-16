@@ -72,7 +72,8 @@ app.post("/api/playbacks/:id", (req, res) => {
           const response = await docClient.query(newParams).promise();
           const resList = response.Items.map(function(item) {
             return {
-              Timestamp: item.Timestamp
+              Timestamp: item.Timestamp,
+              UserId: item.UserId
             }
           });
           
