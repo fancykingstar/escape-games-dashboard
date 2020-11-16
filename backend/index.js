@@ -31,7 +31,6 @@ const docClient = new AWS.DynamoDB.DocumentClient({
 app.post("/api/playbacks/:id", (req, res) => {
   const { id } = req.params;
   let { startDate, endDate } = req.body;
-  console.log(startDate, endDate)
   const params = {
     TableName : "EscapeLog",
     IndexName: "GameId-Timestamp-index",
@@ -57,10 +56,11 @@ app.post("/api/playbacks/:id", (req, res) => {
       });
     } else {
       let list = [];
-      // console.log("Query succeeded.", data);
+      console.log("Query succeeded.");
       const result = data.Items.map(function(item) {
         return {
-          Timestamp: item.Timestamp
+          Timestamp: item.Timestamp,
+          UserId: item.UserId
         }
       });
       list.push(...result);
@@ -94,23 +94,25 @@ app.post("/api/playbacks/:id", (req, res) => {
   });
 });
 
-app.get("/api/playbacks/:id/:timestamp", (req, res) => {
-  const { id, timestamp } = req.params;
-  // const params = {
-  //   TableName : "EscapeLog",
-  //   FilterExpression: "Move = :m_action and GameId = :g_id and #dynobase_timestamp = :time",
-  //   ExpressionAttributeNames: { "#dynobase_timestamp": "Timestamp" },
-  //   ExpressionAttributeValues: {
-  //     ":m_action": `{"action":"newgame"}`,
-  //     ":g_id": id.toString(),
-  //     ":time": timestamp.toString()
-  //   }
-  // };
+app.post("/api/playbacks", (req, res) => {
+  const { id, timestamp, userId } = req.body;
+  
   const params = {
-    TableName : "EscapeLog"
+    TableName : "EscapeLog",
+    IndexName: "GameId-Timestamp-index",
+    KeyConditionExpression: "GameId = :g_id and #times >= :equaltime",
+    FilterExpression: "UserId = :u_id",
+    ExpressionAttributeNames: {
+      "#times": "Timestamp"
+    },
+    ExpressionAttributeValues: {
+      ":u_id": userId,
+      ":g_id": id.toString(),
+      ":equaltime": timestamp
+    }
   };
   
-  docClient.scan(params, function(err, data) {
+  docClient.query(params, function(err, data) {
     if (err) {
       console.error("Unable to query. Error:", JSON.stringify(err, null, 2));
       res.status(400).send({
@@ -120,6 +122,41 @@ app.get("/api/playbacks/:id/:timestamp", (req, res) => {
       console.log("Query succeeded.");
       res.status(200).send({
         result: data.Items
+      });
+    }
+  });
+});
+
+app.post("/api/playbacks_detail", (req, res) => {
+  const { id, timestamp, userId, move } = req.body;
+  
+  const params = {
+    TableName : "EscapeLog",
+    IndexName: "GameId-Timestamp-index",
+    KeyConditionExpression: "GameId = :g_id and #times >= :equaltime",
+    FilterExpression: "UserId = :u_id and Move = :move",
+    ExpressionAttributeNames: {
+      "#times": "Timestamp"
+    },
+    ExpressionAttributeValues: {
+      ":move": move,
+      ":u_id": userId,
+      ":g_id": id.toString(),
+      ":equaltime": timestamp
+    },
+    ScanIndexForward: false,
+  };
+  
+  docClient.query(params, function(err, data) {
+    if (err) {
+      console.error("Unable to query. Error:", JSON.stringify(err, null, 2));
+      res.status(400).send({
+        result: JSON.stringify(err, null, 2)
+      });
+    } else {
+      console.log("Query succeeded.");
+      res.status(200).send({
+        result: data.Items[0]
       });
     }
   });

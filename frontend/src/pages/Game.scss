@@ -3,3 +3,17 @@
     color: #007bff;
   }
 }
+
+.command {
+  height: 660px;
+  overflow: auto;
+}
+
+.detail-loading {
+  left: calc(50% - 16px);
+  top: 50px;
+}
+
+.d-border {
+  border: 1px solid;
+}

@@ -124,7 +124,7 @@ const PlayBacks = () => {
                       key={index}
                       className="cursor-pointer game-item"
                       onClick={() => {
-                        history.push(`/${name}/${id}/${item.Timestamp}`)
+                        history.push(`/${name}/${id}/${item.Timestamp}?userId=${item.UserId}`)
                       }}
                     >
                       { formatDate(item.Timestamp) }
